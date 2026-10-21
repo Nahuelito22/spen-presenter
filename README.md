@@ -127,6 +127,32 @@ por defecto abre la cámara cuando un gesto no se reconoce.
 
 ---
 
+## Modo Bluetooth: sin agente y sin red
+
+El teléfono también puede presentarse ante la PC **como un teclado Bluetooth**.
+No hace falta instalar nada del otro lado, ni estar en la misma WiFi, ni tocar
+el firewall: sirve en la computadora de un aula o de un evento.
+
+Elegí **Bluetooth** en el selector de arriba de la app y tocá Iniciar.
+
+> ⚠️ **El orden del emparejamiento importa.** Si emparejás el teléfono con la
+> PC *antes* de arrancar la app en modo Bluetooth, Windows lo registra por sus
+> perfiles de audio, cachea esa lista de servicios y **nunca conecta el
+> teclado**. Lo vas a ver como un intento de conexión que muere a los ~17
+> segundos.
+>
+> La solución: desvinculá de ambos lados, arrancá la app en modo Bluetooth
+> (que registra y anuncia el perfil HID) y recién entonces emparejá desde la
+> PC. Windows ahí sí lo descubre como teclado.
+
+En la lista de Bluetooth aparece con el nombre del teléfono, no como "S Pen
+Presenter": Android no deja que una app cambie el nombre Bluetooth del
+dispositivo.
+
+Comparado con el modo WiFi: no hay medición de latencia (el host HID no
+contesta nada) ni código de emparejamiento, porque la seguridad la da el
+emparejamiento Bluetooth del sistema.
+
 ## Uso
 
 1. Arrancá el agente en la PC (o dejá que arranque solo).
@@ -217,9 +243,6 @@ cada ping.
 
 Funcionando y usado en presentaciones reales. Lo que falta:
 
-- [ ] Modo **Bluetooth HID**: que la PC lo vea como un teclado, sin agente ni
-      red. Pendiente de confirmar que Samsung permita `BluetoothHidDevice` en
-      este dispositivo.
 - [ ] Escaneo del QR como alternativa a mDNS.
 
 El historial de decisiones y el registro de pruebas están en

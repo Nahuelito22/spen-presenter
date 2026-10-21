@@ -66,7 +66,7 @@ spen-presenter/
 │       ├── transport/
 │       │   ├── Transport.kt        (interfaz: send(cmd))
 │       │   ├── WebSocketTransport.kt
-│       │   └── HidTransport.kt     (Fase 4, todavía no existe)
+│       │   └── HidTransport.kt     (teclado Bluetooth HID)
 │       └── Mapping.kt              (evento S Pen → comando)
 └── pc-agent/
     ├── agent.py                    (WebSocket + mDNS + emparejamiento)
@@ -158,8 +158,7 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 
 - [x] `HidTransport` con `BluetoothHidDevice` y un descriptor de teclado. *(2026-10-21)*
 - [x] Selector de modo en la UI: WiFi / Bluetooth. *(2026-10-21)*
-- [ ] **Confirmar que Samsung lo permite**: si `registerApp` falla, la app lo
-      dice en pantalla y el modo queda descartado.
+- [x] **Confirmado: Samsung lo permite** en el S22 Ultra con One UI 8. *(2026-10-21)*
 
 **Prueba:** emparejar con la PC, abrir Prezi y pasar diapositivas sin el agente corriendo. Probar también en una segunda PC (por ejemplo, la de un aula o evento).
 
@@ -185,7 +184,8 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 | One UI mata el foreground service | Excluir la app de la optimización de batería y documentarlo en el README |
 | Otra app de música roba la MediaSession | Avisar en la UI si perdemos el foco de audio |
 | El firewall de Windows bloquea el puerto 8765 | El agente explica cómo permitirlo, o usar el modo HID |
-| Samsung limita el perfil HID | Quedarse con el modo LAN |
+| ~~Samsung limita el perfil HID~~ | **Descartado 2026-10-21**: `registerApp` devuelve true y la PC recibe las teclas |
+| Windows empareja el teléfono por sus perfiles de audio y nunca conecta el HID | Emparejar **con la app ya corriendo** en modo Bluetooth. Si ya estaba emparejado, desvincular y repetir |
 | El click simple solo emite play/pause | Mapear play **y** pause a `next` |
 | El JBR de Android Studio (JDK 25) rompe Gradle | Compilar con Temurin 21, ya instalado como `JAVA_HOME` |
 | Con el servicio activo las teclas de volumen no funcionan | Es consecuencia del `VolumeProvider`; se puede quitar y perder 2 gestos |
@@ -224,9 +224,12 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 | 2026-10-21 | 5 | Mapeo configurable | ✅ OK | Cambiado "click simple" a Pantalla negra: el agente recibió `black`. "Restablecer" vuelve a los valores de fábrica |
 | 2026-10-21 | 5 | Ejecutable independiente | ✅ OK | 11 MB con PyInstaller. Publica mDNS, muestra el código y autentica igual que el script |
 | 2026-10-21 | 5 | Arranque automático con el `.exe` | ✅ OK | El acceso directo apunta al ejecutable, ventana minimizada. Bug corregido: el script quedó imprimiendo variables vacías tras un refactor |
-|  | 5 | Ícono nuevo en el teléfono | ⏳ pendiente | Compila; falta verlo instalado |
-|  | 4 | `BluetoothHidDevice.registerApp` en el S22 | ⏳ pendiente | **La prueba que decide la fase.** Compila; falta correrlo en el teléfono |
-|  | 4 | La PC ve al S22 como teclado | ⏳ pendiente | Depende de la anterior |
+| 2026-10-21 | 5 | Ícono nuevo en el teléfono | ✅ OK | Instalado junto con el modo Bluetooth |
+| 2026-10-21 | 4 | `BluetoothHidDevice.registerApp` en el S22 | ✅ OK | `perfil HID registrado=true`. **One UI 8 sí permite el rol de teclado** |
+| 2026-10-21 | 4 | Primer emparejamiento | ❌ Falló | Windows emparejó el teléfono por sus perfiles de audio (A2DP, manos libres) y nunca conectó el HID: estado 1 → 0 a los 17 s |
+| 2026-10-21 | 4 | Re-emparejamiento con el HID ya registrado | ✅ OK | Desvincular de ambos lados y volver a emparejar con la app corriendo: `estado de conexion: 2`. Windows lista "Dispositivo de teclado HID" |
+| 2026-10-21 | 4 | **Teclas reales con el agente apagado** | ✅ OK | Puerto 8765 cerrado; la PC recibió `Key.right`, `Key.left`, `Key.right`. Sin agente, sin red, sin firewall |
+|  | 4 | Prueba en una segunda PC | ⏳ pendiente | Es el caso de uso que justifica la fase: el aula o el evento |
 | 2026-10-20 | 3 | Regla de firewall para el puerto 8765 | ✅ OK | Creada como "S Pen Presenter". La red de casa figura como **Pública**, así que la regla quedó con perfil `Any` |
 | 2026-10-20 | 3 | WebSocket teléfono → PC | ✅ OK | 192.168.1.181 → 192.168.1.171. Bug corregido: Android bloquea cleartext, hizo falta `network_security_config` |
 | 2026-10-20 | 3 | Comandos de punta a punta | ✅ OK | `next`, `prev`, `next` simulados llegaron al agente y movieron el foco |

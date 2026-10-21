@@ -158,7 +158,7 @@ class PresenterService : Service() {
         transport?.disconnect()
 
         if (Settings.mode.value == TransportMode.BLUETOOTH) {
-            openTransport(HidTransport(this))
+            openTransport(HidTransport(this, scope))
             return
         }
 

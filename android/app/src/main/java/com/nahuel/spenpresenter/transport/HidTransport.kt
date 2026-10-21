@@ -2,6 +2,7 @@ package com.nahuel.spenpresenter.transport
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothClass
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothHidDevice
 import android.bluetooth.BluetoothHidDeviceAppSdpSettings
@@ -10,8 +11,12 @@ import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.util.Log
 import com.nahuel.spenpresenter.Command
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 /**
@@ -29,6 +34,7 @@ import java.util.concurrent.Executors
 @SuppressLint("MissingPermission") // El permiso se pide en MainActivity.
 class HidTransport(
     private val context: Context,
+    private val scope: CoroutineScope,
     private val onNeedsPermission: () -> Unit = {},
 ) : Transport {
 
@@ -40,6 +46,7 @@ class HidTransport(
     private var hidDevice: BluetoothHidDevice? = null
     private var host: BluetoothDevice? = null
     private var registered = false
+    private var retryJob: Job? = null
 
     private val sdp = BluetoothHidDeviceAppSdpSettings(
         "S Pen Presenter",
@@ -55,7 +62,10 @@ class HidTransport(
             this@HidTransport.registered = registered
             Log.i(TAG, "perfil HID registrado=$registered")
             if (registered) {
-                _state.value = ConnectionState.Searching
+                // Windows empareja el telefono por sus perfiles de audio y no
+                // inicia la conexion HID por su cuenta: la tenemos que pedir
+                // nosotros contra la PC ya emparejada.
+                connectToPairedComputer()
             } else {
                 _state.value = ConnectionState.Failed(
                     "este telefono no permite actuar como teclado Bluetooth",
@@ -74,7 +84,9 @@ class HidTransport(
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     host = null
                     if (this@HidTransport.registered) {
-                        _state.value = ConnectionState.Searching
+                        // La PC puede estar dormida o haber rechazado el
+                        // intento: insistimos sin prisa en vez de rendirnos.
+                        scheduleRetry()
                     }
                 }
             }
@@ -102,6 +114,42 @@ class HidTransport(
             host = null
             registered = false
             _state.value = ConnectionState.Idle
+        }
+    }
+
+    /**
+     * Pide conexion a las computadoras ya emparejadas.
+     *
+     * Si no hay ninguna, quedamos a la espera: cuando Nahuel empareje una, el
+     * host va a aparecer y el callback de conexion nos va a avisar.
+     */
+    private fun connectToPairedComputer() {
+        val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+        val device = hidDevice ?: return
+
+        val computers = manager?.adapter?.bondedDevices.orEmpty().filter {
+            it.bluetoothClass?.majorDeviceClass == BluetoothClass.Device.Major.COMPUTER
+        }
+
+        if (computers.isEmpty()) {
+            Log.i(TAG, "no hay ninguna PC emparejada todavia")
+            _state.value = ConnectionState.Searching
+            return
+        }
+
+        _state.value = ConnectionState.Connecting(attempt = 1)
+        computers.forEach { computer ->
+            val asked = device.connect(computer)
+            Log.i(TAG, "pedido de conexion a ${computer.name}: $asked")
+        }
+    }
+
+    private fun scheduleRetry() {
+        retryJob?.cancel()
+        retryJob = scope.launch {
+            _state.value = ConnectionState.Searching
+            delay(RETRY_DELAY_MILLIS)
+            if (registered && host == null) connectToPairedComputer()
         }
     }
 
@@ -137,6 +185,7 @@ class HidTransport(
     }
 
     override fun disconnect() {
+        retryJob?.cancel()
         hidDevice?.let { device ->
             runCatching { device.unregisterApp() }
             val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
@@ -180,6 +229,7 @@ class HidTransport(
     private companion object {
         const val TAG = "HidTransport"
         const val REPORT_ID = 1
+        const val RETRY_DELAY_MILLIS = 5_000L
 
         // Usages del HID Usage Table, pagina 0x07 (teclado).
         const val USAGE_B = 0x05
