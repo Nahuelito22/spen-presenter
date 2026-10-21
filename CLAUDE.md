@@ -22,8 +22,16 @@ S Pen (botón / gestos) → Air Actions de Samsung → **MediaSession** de nuest
 
 - Trabajar **una fase a la vez**, con una lista de tareas acordada al inicio de cada sesión.
 - **Al terminar cada fase: frenar** y pedirle a Nahuel que ejecute las pruebas de la sección "Prueba" antes de seguir.
-- Mostrar los cambios para revisión; **no hacer commit ni push**: Nahuel commitea y pushea manualmente.
-- Proponer **commits de un solo propósito** (sugerir el mensaje, no ejecutarlo).
+- **Git** (desde 2026-10-21):
+  - *Cambios chicos* — arreglos, documentación, pulido, ajustes de una prueba:
+    commitear directo a `main` y pushear, sin preguntar.
+  - *Cambios grandes* — una fase nueva, un refactor, cambiar la arquitectura
+    o agregar dependencias: rama + **Pull Request** con `gh pr create`.
+    **Nahuel mergea; Claude nunca mergea.**
+  - Siempre **commits de un solo propósito**, con el porqué en el cuerpo
+    cuando la decisión no sea obvia.
+  - Todo lo que publique hacia afuera (releases, cambios de visibilidad del
+    repo): **preguntar antes**.
 - Nada de credenciales, tokens o claves en el código ni en el chat. Si algo lo requiere, dejar un placeholder y avisar.
 - Si una prueba falla, registrar el resultado en la **Bitácora de pruebas** (sección 8) antes de cambiar de enfoque.
 - **Alcance cerrado**: trabajar únicamente sobre este repositorio
