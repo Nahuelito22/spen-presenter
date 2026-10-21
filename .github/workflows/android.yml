@@ -1,0 +1,66 @@
+name: App Android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
+  pull_request:
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+# Si llegan varios push seguidos, solo interesa el ultimo.
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # 21 y no el JDK mas nuevo: el JBR 25 de Android Studio no lo
+          # soporta Gradle 8.13, y queremos compilar con lo mismo que local.
+          java-version: '21'
+
+      - name: Preparar el SDK de Android
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar el APK de depuracion
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Lint
+        working-directory: android
+        run: ./gradlew lintDebug --no-daemon
+
+      - name: Guardar el APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      - name: Guardar el reporte de lint
+        # Interesa sobre todo cuando lint falla.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-lint
+          path: android/app/build/reports/lint-results-debug.html
+          retention-days: 30
+          if-no-files-found: ignore

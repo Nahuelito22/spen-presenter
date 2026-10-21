@@ -1,0 +1,59 @@
+name: Agente PC
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pc-agent/**'
+      - '.github/workflows/agent.yml'
+  pull_request:
+    paths:
+      - 'pc-agent/**'
+      - '.github/workflows/agent.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: agent-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Windows porque el .exe se empaqueta para Windows: PyInstaller no hace
+    # compilacion cruzada.
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pc-agent/requirements.txt
+
+      - name: Instalar dependencias
+        working-directory: pc-agent
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Verificar que compila
+        working-directory: pc-agent
+        # Solo compila a bytecode: no ejecuta nada. El agente crea un
+        # Controller de teclado al importarse, que en un runner sin sesion
+        # grafica podria fallar por motivos que no son culpa del codigo.
+        run: python -m compileall -q agent.py test_client.py run_agent.pyw
+
+      - name: Empaquetar el ejecutable
+        working-directory: pc-agent
+        run: |
+          pyinstaller --onefile --name spen-presenter-agent `
+            --collect-submodules zeroconf --noconfirm agent.py
+
+      - name: Guardar el ejecutable
+        uses: actions/upload-artifact@v4
+        with:
+          name: spen-presenter-agent
+          path: pc-agent/dist/spen-presenter-agent.exe
+          retention-days: 30
