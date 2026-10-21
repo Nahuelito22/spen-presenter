@@ -1,0 +1,5 @@
+# Agente PC - S Pen Presenter (Fase 1)
+websockets>=13.0
+pynput>=1.7.6
+qrcode>=7.4.2
+zeroconf>=0.132.0
