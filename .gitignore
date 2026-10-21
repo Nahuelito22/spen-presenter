@@ -1,0 +1,17 @@
+# Agente PC
+pc-agent/.venv/
+__pycache__/
+*.pyc
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/captures/
+*.iml
+
+# Sistema
+Thumbs.db
+desktop.ini
