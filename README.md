@@ -83,6 +83,9 @@ Opcional, para que arranque solo con Windows:
 powershell -ExecutionPolicy Bypass -File .\install_autostart.ps1
 ```
 
+¿No querés instalar Python? Compilá un ejecutable independiente con
+`build_exe.ps1` y usá `dist/spen-presenter-agent.exe`.
+
 Más detalle en [`pc-agent/README.md`](pc-agent/README.md).
 
 ### 2. App en el teléfono
@@ -218,7 +221,10 @@ Funcionando y usado en presentaciones reales. Lo que falta:
       red. Pendiente de confirmar que Samsung permita `BluetoothHidDevice` en
       este dispositivo.
 - [ ] Escaneo del QR como alternativa a mDNS.
-- [ ] Empaquetar el agente como `.exe`, para no depender de Python.
 
 El historial de decisiones y el registro de pruebas están en
 [`CLAUDE.md`](CLAUDE.md).
+
+## Licencia
+
+MIT — ver [`LICENSE`](LICENSE).
