@@ -26,6 +26,10 @@ S Pen (botón / gestos) → Air Actions de Samsung → **MediaSession** de nuest
 - Proponer **commits de un solo propósito** (sugerir el mensaje, no ejecutarlo).
 - Nada de credenciales, tokens o claves en el código ni en el chat. Si algo lo requiere, dejar un placeholder y avisar.
 - Si una prueba falla, registrar el resultado en la **Bitácora de pruebas** (sección 8) antes de cambiar de enfoque.
+- **Alcance cerrado**: trabajar únicamente sobre este repositorio
+  (`Nahuelito22/spen-presenter`) y su carpeta local. No tocar otros repos,
+  otros proyectos de la máquina, ni otros recursos de la cuenta de GitHub.
+  Los comandos de `gh` se limitan a este repo.
 
 ---
 
