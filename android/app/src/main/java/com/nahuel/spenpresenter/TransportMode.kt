@@ -3,6 +3,14 @@ package com.nahuel.spenpresenter
 /** Por donde viajan los comandos hasta la PC. */
 enum class TransportMode {
 
+    /**
+     * Prueba Bluetooth primero y, si no engancha, cae a WiFi.
+     *
+     * Es el default: evita tener que acordarse de cambiar el modo antes de
+     * presentar, que es justo cuando uno no quiere estar tocando ajustes.
+     */
+    AUTO,
+
     /** WebSocket por la red local. Necesita el agente corriendo en la PC. */
     LAN,
 
@@ -15,6 +23,7 @@ enum class TransportMode {
 
 val TransportMode.label: String
     get() = when (this) {
+        TransportMode.AUTO -> "Automatico"
         TransportMode.LAN -> "WiFi"
         TransportMode.BLUETOOTH -> "Bluetooth"
     }

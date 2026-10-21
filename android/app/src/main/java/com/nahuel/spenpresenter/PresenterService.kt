@@ -26,7 +26,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Foreground service que mantiene viva la MediaSession por la que entran los
@@ -43,6 +45,8 @@ class PresenterService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var transport: Transport? = null
     private var discoveryJob: Job? = null
+    private var stateJob: Job? = null
+    private var autoJob: Job? = null
 
     /**
      * Declarar la sesion como "remota" hace que los gestos de volumen del
@@ -124,6 +128,8 @@ class PresenterService : Service() {
 
     override fun onDestroy() {
         discoveryJob?.cancel()
+        autoJob?.cancel()
+        stateJob?.cancel()
         transport?.disconnect()
         transport = null
         scope.cancel()
@@ -156,25 +162,63 @@ class PresenterService : Service() {
      */
     private fun openTransport() {
         transport?.disconnect()
+        stateJob?.cancel()
+        autoJob?.cancel()
 
-        if (Settings.mode.value == TransportMode.BLUETOOTH) {
-            openTransport(HidTransport(this, scope))
-            return
+        when (Settings.mode.value) {
+            TransportMode.BLUETOOTH -> openTransport(HidTransport(this, scope))
+            TransportMode.LAN -> openLan()
+            TransportMode.AUTO -> openAuto()
         }
+    }
 
+    private fun openLan() {
         val url = Settings.url()
         if (url == null) {
             // Sin IP guardada probamos mDNS antes de darnos por vencidos.
             startDiscovery()
             return
         }
-
         openTransport(WebSocketTransport(url, Settings.token.value, scope))
+    }
+
+    /**
+     * Modo automatico: Bluetooth primero, WiFi si no engancha.
+     *
+     * Bluetooth tiene prioridad porque no depende de que el agente este
+     * corriendo ni de en que red estemos, que es justo lo que falla cuando uno
+     * presenta en una maquina ajena. Si no conecta en unos segundos —porque
+     * no hay ninguna PC emparejada, o esta apagada— caemos a WiFi.
+     *
+     * La decision se toma una vez al arrancar. Si despues se cae el
+     * transporte elegido, cada uno reintenta lo suyo; no saltamos de uno a
+     * otro en caliente para no quedar rebotando en medio de una presentacion.
+     */
+    private fun openAuto() {
+        val hid = HidTransport(this, scope)
+        openTransport(hid)
+
+        autoJob = scope.launch {
+            val outcome = withTimeoutOrNull(BLUETOOTH_PROBE_MILLIS) {
+                hid.state.first {
+                    it is ConnectionState.Connected || it is ConnectionState.Failed
+                }
+            }
+            if (outcome is ConnectionState.Connected) {
+                Log.i(TAG, "modo automatico: nos quedamos con Bluetooth")
+                return@launch
+            }
+            Log.i(TAG, "modo automatico: Bluetooth no engancho, probamos WiFi")
+            stateJob?.cancel()
+            hid.disconnect()
+            openLan()
+        }
     }
 
     private fun openTransport(next: Transport) {
         transport = next
-        scope.launch {
+        stateJob?.cancel()
+        stateJob = scope.launch {
             next.state.collect { state ->
                 EventLog.setConnection(state)
                 refreshNotification()
@@ -266,8 +310,11 @@ class PresenterService : Service() {
                 "Buscando la PC en la red..."
             }
         is ConnectionState.Connecting -> "Conectando con la PC (intento ${state.attempt})"
-        is ConnectionState.Connected ->
-            state.latencyMs?.let { "Conectado - ${it} ms" } ?: "Conectado a la PC"
+        is ConnectionState.Connected -> buildString {
+            append("Conectado")
+            state.via?.let { append(" por ").append(it) }
+            state.latencyMs?.let { append(" - ").append(it).append(" ms") }
+        }
         is ConnectionState.Failed -> "Sin conexion con la PC - reintentando"
     }
 
@@ -300,6 +347,7 @@ class PresenterService : Service() {
         private const val TAG = "PresenterService"
         private const val CHANNEL_ID = "presenter"
         private const val NOTIFICATION_ID = 1
+        private const val BLUETOOTH_PROBE_MILLIS = 6_000L
         const val ACTION_STOP = "com.nahuel.spenpresenter.STOP"
         const val ACTION_RECONNECT = "com.nahuel.spenpresenter.RECONNECT"
         const val ACTION_DISCOVER = "com.nahuel.spenpresenter.DISCOVER"

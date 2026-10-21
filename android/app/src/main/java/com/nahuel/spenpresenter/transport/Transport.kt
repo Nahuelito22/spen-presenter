@@ -15,8 +15,12 @@ sealed interface ConnectionState {
     /** Intentando conectar; [attempt] empieza en 1. */
     data class Connecting(val attempt: Int) : ConnectionState
 
-    /** Conectado. [latencyMs] es null hasta el primer pong. */
-    data class Connected(val latencyMs: Long?) : ConnectionState
+    /**
+     * Conectado. [latencyMs] es null hasta el primer pong (y siempre en
+     * Bluetooth, que es unidireccional). [via] nombra el transporte activo,
+     * que en modo automatico no se sabe de antemano.
+     */
+    data class Connected(val latencyMs: Long?, val via: String? = null) : ConnectionState
 
     /** Caido. [reason] es para mostrarle algo util a Nahuel, no para parsear. */
     data class Failed(val reason: String) : ConnectionState

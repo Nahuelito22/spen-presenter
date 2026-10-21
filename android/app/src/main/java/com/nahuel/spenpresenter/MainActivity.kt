@@ -142,16 +142,21 @@ private fun PresenterScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        if (mode == TransportMode.BLUETOOTH) {
-            Text(
+        when (mode) {
+            TransportMode.BLUETOOTH -> Text(
                 "El telefono aparece como un teclado en la pantalla de " +
                     "Bluetooth de la PC. Emparejalo desde ahi; no hace falta " +
                     "el agente.",
                 style = MaterialTheme.typography.bodySmall,
             )
+            TransportMode.AUTO -> Text(
+                "Prueba Bluetooth primero y, si no engancha, usa WiFi.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            TransportMode.LAN -> Unit
         }
 
-        if (mode == TransportMode.LAN) {
+        if (mode != TransportMode.BLUETOOTH) {
             OutlinedTextField(
                 value = host,
                 onValueChange = { host = it },
@@ -195,7 +200,7 @@ private fun PresenterScreen(modifier: Modifier = Modifier) {
                     PresenterService.reconnect(context)
                 },
                 // En Bluetooth no hay nada que reconectar a mano.
-                enabled = mode == TransportMode.LAN &&
+                enabled = mode != TransportMode.BLUETOOTH &&
                     (host != savedHost ||
                         token != savedToken ||
                         connection is ConnectionState.Failed),
@@ -207,7 +212,7 @@ private fun PresenterScreen(modifier: Modifier = Modifier) {
                     Settings.setToken(context, token)
                     PresenterService.discover(context)
                 },
-                enabled = mode == TransportMode.LAN &&
+                enabled = mode != TransportMode.BLUETOOTH &&
                     connection !is ConnectionState.Searching,
             ) {
                 Text("Buscar PC")
@@ -305,9 +310,11 @@ private fun ConnectionBadge(running: Boolean, state: ConnectionState) {
             "Buscando la PC en la red..." to ComposeColor(0xFFB36B00)
         state is ConnectionState.Connecting ->
             "Conectando (intento ${state.attempt})..." to ComposeColor(0xFFB36B00)
-        state is ConnectionState.Connected ->
-            (state.latencyMs?.let { "Conectado - $it ms" } ?: "Conectado") to
-                ComposeColor(0xFF1B7A3D)
+        state is ConnectionState.Connected -> buildString {
+            append("Conectado")
+            state.via?.let { append(" por ").append(it) }
+            state.latencyMs?.let { append(" - ").append(it).append(" ms") }
+        } to ComposeColor(0xFF1B7A3D)
         state is ConnectionState.Failed ->
             "Sin conexion: ${state.reason}" to ComposeColor(0xFFB3261E)
         else -> "Escuchando el S Pen" to ComposeColor(0xFF6B6B6B)
