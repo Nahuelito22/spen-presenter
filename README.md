@@ -9,6 +9,9 @@ PDF o cualquier cosa que responda a las flechas del teclado.
 │  S Pen   │ ──────────────▶ │  App Android         │ ────────────▶ │  Agente Python   │ ──▶ → / ←
 └──────────┘   (Bluetooth)   │  MediaSession        │     (LAN)     │  en la PC        │
                              └──────────────────────┘               └──────────────────┘
+                                        │
+                                        └──── Bluetooth HID ────▶ la PC lo ve
+                                              (sin agente)         como un teclado
 ```
 
 Probado en un **Galaxy S22 Ultra (SM-S908E)** con One UI 8 / Android 16 contra
@@ -165,6 +168,27 @@ emparejamiento Bluetooth del sistema.
 
 Los gestos se remapean desde *Configurar mapeo*, en la app.
 
+### Modo Bluetooth: sin agente y sin red
+
+Para presentar en una PC que no es tuya — un aula, un evento — el teléfono
+puede hacerse pasar por un **teclado Bluetooth**. No hace falta instalar nada
+del otro lado, ni red, ni abrir puertos.
+
+1. En la app, elegí **Bluetooth** y tocá *Iniciar*. Tiene que decir
+   *"Esperando que la PC se conecte por Bluetooth"*.
+2. Dejá abierta la pantalla de Bluetooth del teléfono (solo es descubrible
+   mientras esa pantalla está abierta).
+3. En la PC: *Agregar dispositivo → Bluetooth* → elegí el teléfono y aceptá
+   el código.
+
+> ⚠️ **Emparejá con la app ya corriendo en modo Bluetooth.** Si el teléfono ya
+> estaba emparejado como teléfono, Windows cacheó sus perfiles de audio y
+> nunca va a conectar el teclado: desvinculalo de ambos lados y repetí el
+> emparejamiento. Lo aprendimos por las malas.
+
+Verificado en un S22 Ultra con One UI 8: la PC recibe las flechas con el
+agente apagado y el puerto 8765 cerrado.
+
 ---
 
 ## Cómo son los gestos
@@ -193,6 +217,8 @@ gestos direccionales necesitan algo de práctica.
 | La música se pausa al iniciar | Es inevitable: hace falta el foco de audio para ganar la sesión de media |
 | El servicio se muere solo | Sacá la app de la optimización de batería: *Ajustes → Batería → Límites de uso en segundo plano → Apps que nunca se suspenden* |
 | Otra app de música "roba" los botones | Cerrala, o tocá **Detener** e **Iniciar** para recuperar la sesión |
+| En modo Bluetooth queda *Esperando que la PC se conecte* | La PC no está emparejada, o lo está solo por audio. Desvinculá de ambos lados y emparejá de nuevo con la app corriendo |
+| El teléfono aparece con su nombre, no "S Pen Presenter" | Es el nombre Bluetooth del teléfono; Android no deja cambiarlo por app |
 
 ---
 
@@ -241,7 +267,10 @@ cada ping.
 
 ## Estado
 
-Funcionando y usado en presentaciones reales. Lo que falta:
+Funcionando y usado en presentaciones reales, en los dos modos: **WiFi** con
+el agente y **Bluetooth HID** sin nada del otro lado.
+
+Lo que falta:
 
 - [ ] Escaneo del QR como alternativa a mDNS.
 
