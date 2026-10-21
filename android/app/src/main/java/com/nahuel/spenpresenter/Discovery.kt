@@ -5,6 +5,7 @@ import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import java.net.Inet4Address
@@ -74,7 +75,14 @@ class Discovery(context: Context) {
         }
     }
 
-    /** Android 14+: resolveService quedo deprecado en favor de esta API. */
+    /**
+     * Android 14+: resolveService quedo deprecado en favor de esta API.
+     *
+     * La anotacion no es decorativa: sin ella lint no puede relacionar este
+     * cuerpo con el chequeo de version que hay en [resolve], y marca cinco
+     * errores de NewApi.
+     */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun resolveModern(info: NsdServiceInfo, onResolved: (Agent?) -> Unit) {
         val callback = object : NsdManager.ServiceInfoCallback {
             override fun onServiceUpdated(info: NsdServiceInfo) {
