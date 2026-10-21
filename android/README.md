@@ -37,6 +37,35 @@ $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
 & $adb logcat -s PresenterService SilentPlayer   # ver los eventos en vivo
 ```
 
+## Compilar una versión firmada
+
+El APK de depuración sirve para probar, pero va firmado con la clave genérica
+de Android y queda marcado como *debuggable*. Para publicar uno de verdad:
+
+1. Generá el keystore (**una sola vez**; si lo perdés no vas a poder firmar
+   actualizaciones de la misma app, y los usuarios tendrán que desinstalar y
+   reinstalar):
+
+   ```powershell
+   cd android
+   keytool -genkeypair -v -keystore spen-presenter.jks -alias spen-presenter -keyalg RSA -keysize 4096 -validity 10000
+   ```
+
+2. Copiá `keystore.properties.example` a `keystore.properties` y completá las
+   contraseñas que acabás de elegir.
+
+3. Compilá:
+
+   ```powershell
+   .\gradlew.bat assembleRelease
+   ```
+
+   Queda en `app\build\outputs\apk\release\app-release.apk`.
+
+> `keystore.properties` y los `.jks` están en `.gitignore`. Si el archivo no
+> existe el proyecto igual compila: el release sale sin firmar, así cualquiera
+> puede clonar y construir sin necesitar tus claves.
+
 ## Cómo está armado
 
 | Archivo | Qué hace |
