@@ -25,8 +25,8 @@ android {
         applicationId = "com.nahuel.spenpresenter"
         minSdk = 28          // BluetoothHidDevice (Fase 4)
         targetSdk = 36       // Android 16, el del S22 Ultra de prueba
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
 
     signingConfigs {
