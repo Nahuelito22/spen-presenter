@@ -29,7 +29,7 @@ object Settings {
     /** Codigo de emparejamiento que muestra el agente. Vacio = sin configurar. */
     val token: StateFlow<String> = _token
 
-    private val _mode = MutableStateFlow(TransportMode.LAN)
+    private val _mode = MutableStateFlow(TransportMode.AUTO)
 
     /** Por donde le hablamos a la PC. */
     val mode: StateFlow<TransportMode> = _mode
@@ -45,7 +45,7 @@ object Settings {
         _token.value = prefs.getString(KEY_TOKEN, "").orEmpty()
         _mode.value = TransportMode.entries
             .firstOrNull { it.name == prefs.getString(KEY_MODE, null) }
-            ?: TransportMode.LAN
+            ?: TransportMode.AUTO
         _mapping.value = PenEvent.entries.associateWith { event ->
             val stored = prefs.getString(KEY_MAPPING_PREFIX + event.name, null)
             Command.entries.firstOrNull { it.name == stored }

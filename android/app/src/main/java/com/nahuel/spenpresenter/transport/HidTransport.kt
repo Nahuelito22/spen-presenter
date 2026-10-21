@@ -79,7 +79,7 @@ class HidTransport(
                 BluetoothProfile.STATE_CONNECTED -> {
                     host = device
                     // No hay ping/pong por HID: el host no nos contesta nada.
-                    _state.value = ConnectionState.Connected(latencyMs = null)
+                    _state.value = ConnectionState.Connected(latencyMs = null, via = VIA)
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     host = null
@@ -228,6 +228,7 @@ class HidTransport(
 
     private companion object {
         const val TAG = "HidTransport"
+        const val VIA = "Bluetooth"
         const val REPORT_ID = 1
         const val RETRY_DELAY_MILLIS = 5_000L
 

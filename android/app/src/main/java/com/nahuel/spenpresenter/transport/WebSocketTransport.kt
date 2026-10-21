@@ -102,7 +102,7 @@ class WebSocketTransport(
                     Log.i(TAG, "autenticado contra $url")
                     authenticated = true
                     attempt = 0
-                    _state.value = ConnectionState.Connected(latencyMs = null)
+                    _state.value = ConnectionState.Connected(latencyMs = null, via = VIA)
                     startLatencyProbe(webSocket)
                 } else {
                     // Reintentar con el mismo codigo incorrecto no va a servir:
@@ -116,7 +116,7 @@ class WebSocketTransport(
 
             if (json.has("pong") && lastPingSentAt != 0L) {
                 val rtt = System.currentTimeMillis() - lastPingSentAt
-                _state.value = ConnectionState.Connected(latencyMs = rtt)
+                _state.value = ConnectionState.Connected(latencyMs = rtt, via = VIA)
             }
         }
 
@@ -165,6 +165,7 @@ class WebSocketTransport(
 
     private companion object {
         const val TAG = "WebSocketTransport"
+        const val VIA = "WiFi"
         const val NORMAL_CLOSURE = 1000
         const val CONNECT_TIMEOUT_SECONDS = 5L
         const val PING_INTERVAL_SECONDS = 10L

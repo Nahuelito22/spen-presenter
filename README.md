@@ -158,6 +158,13 @@ emparejamiento Bluetooth del sistema.
 
 ## Uso
 
+El modo **Automático** viene elegido de fábrica: prueba Bluetooth primero y,
+si no engancha en unos segundos, usa WiFi. Así no hay que acordarse de
+cambiar nada antes de presentar, que es justo cuando uno no quiere estar
+tocando ajustes. El badge de la app dice por dónde quedó conectado.
+
+Si preferís forzar uno, los chips **WiFi** y **Bluetooth** siguen estando.
+
 1. Arrancá el agente en la PC (o dejá que arranque solo).
 2. Abrí la app y tocá **Buscar PC**: encuentra el agente por mDNS, sin tipear
    la IP. Cargá el código de emparejamiento la primera vez.
@@ -268,7 +275,8 @@ cada ping.
 ## Estado
 
 Funcionando y usado en presentaciones reales, en los dos modos: **WiFi** con
-el agente y **Bluetooth HID** sin nada del otro lado.
+el agente y **Bluetooth HID** sin nada del otro lado. El modo automático
+elige solo.
 
 Lo que falta:
 

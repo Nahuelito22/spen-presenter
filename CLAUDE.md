@@ -181,6 +181,7 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 - [x] Descubrimiento automático del agente vía mDNS/NSD (sin QR). *(2026-10-21)*
 - [x] Inicio automático del agente con Windows. *(2026-10-21)*
 - [x] Token compartido para que no cualquiera en la red pueda apretar teclas. *(2026-10-21)*
+- [x] Modo automático: Bluetooth primero, WiFi de respaldo. *(2026-10-21)*
 - [ ] Escaneo del QR como alternativa a mDNS.
 - [x] README de uso para cualquier persona. *(2026-10-21)*
 - [x] Ícono propio de la app y de la notificación. *(2026-10-21)*
@@ -242,6 +243,8 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 | 2026-10-21 | 4 | Re-emparejamiento con el HID ya registrado | ✅ OK | Desvincular de ambos lados y volver a emparejar con la app corriendo: `estado de conexion: 2`. Windows lista "Dispositivo de teclado HID" |
 | 2026-10-21 | 4 | **Teclas reales con el agente apagado** | ✅ OK | Puerto 8765 cerrado; la PC recibió `Key.right`, `Key.left`, `Key.right`. Sin agente, sin red, sin firewall |
 |  | 4 | Prueba en una segunda PC | ⏳ pendiente | Es el caso de uso que justifica la fase: el aula o el evento |
+| 2026-10-21 | 5 | Modo automático: elige Bluetooth | ✅ OK | Con BT encendido y la PC emparejada: decidido en 230 ms |
+| 2026-10-21 | 5 | Modo automático: cae a WiFi | ✅ OK | Con BT apagado: no espera el timeout, cae al instante y autentica en 150 ms |
 | 2026-10-20 | 3 | Regla de firewall para el puerto 8765 | ✅ OK | Creada como "S Pen Presenter". La red de casa figura como **Pública**, así que la regla quedó con perfil `Any` |
 | 2026-10-20 | 3 | WebSocket teléfono → PC | ✅ OK | 192.168.1.181 → 192.168.1.171. Bug corregido: Android bloquea cleartext, hizo falta `network_security_config` |
 | 2026-10-20 | 3 | Comandos de punta a punta | ✅ OK | `next`, `prev`, `next` simulados llegaron al agente y movieron el foco |
