@@ -1,13 +1,42 @@
+<!--
+    S Pen en diagonal con un chevron de "siguiente".
+
+    El contenido se mantiene dentro del circulo seguro del adaptive icon
+    (aprox. 21..87 sobre el viewport de 108): las mascaras de cada launcher
+    recortan distinto y cualquier cosa afuera se pierde.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Un S Pen en diagonal, dibujado a mano para no depender de assets -->
+
+    <!-- Cuerpo del lapiz -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M64,30 L74,40 L48,66 L36,70 L40,58 Z" />
+        android:pathData="M42,68 L62,48 L70,56 L50,76 Z" />
+
+    <!-- Punta -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M42,68 L50,76 L37,81 Z" />
+
+    <!-- Extremo superior, en el color de acento -->
     <path
         android:fillColor="#6FFFE9"
-        android:pathData="M66,28 L72,22 L82,32 L76,38 Z" />
+        android:pathData="M62,48 L68,42 L76,50 L70,56 Z" />
+
+    <!-- Boton lateral del S Pen: el detalle que lo hace reconocible -->
+    <path
+        android:fillColor="#1C2541"
+        android:pathData="M56,54 L60,50 L64,54 L60,58 Z" />
+
+    <!-- Chevron de "siguiente diapositiva" -->
+    <path
+        android:strokeColor="#6FFFE9"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M74,64 L82,72 L74,80" />
 </vector>

@@ -236,7 +236,7 @@ class PresenterService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(connectionText())
-            .setSmallIcon(android.R.drawable.ic_menu_slideshow)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(openApp)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Detener", stop)
             .setOngoing(true)
