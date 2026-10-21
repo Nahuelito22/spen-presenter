@@ -53,19 +53,26 @@ y permiso `POST_NOTIFICATIONS` en runtime.
 
 ```
 spen-presenter/
-├── CLAUDE.md            ← este archivo
+├── README.md            ← puerta de entrada para cualquiera
+├── CLAUDE.md            ← este archivo: plan de trabajo y bitácora
 ├── android/             ← proyecto Android Studio (Kotlin)
 │   └── app/src/main/java/.../
-│       ├── MainActivity.kt
+│       ├── MainActivity.kt         (UI Compose)
 │       ├── PresenterService.kt     (foreground service + MediaSession)
 │       ├── SilentPlayer.kt         (mantiene la sesión como "activa")
+│       ├── Discovery.kt            (mDNS con NsdManager)
+│       ├── Settings.kt             (IP, código y mapeo persistidos)
+│       ├── EventLog.kt             (puente servicio ↔ UI)
 │       ├── transport/
 │       │   ├── Transport.kt        (interfaz: send(cmd))
 │       │   ├── WebSocketTransport.kt
-│       │   └── HidTransport.kt     (Fase 4)
+│       │   └── HidTransport.kt     (Fase 4, todavía no existe)
 │       └── Mapping.kt              (evento S Pen → comando)
 └── pc-agent/
-    ├── agent.py
+    ├── agent.py                    (WebSocket + mDNS + emparejamiento)
+    ├── run_agent.pyw               (arranque sin consola)
+    ├── install_autostart.ps1       (y uninstall_autostart.ps1)
+    ├── show_token.ps1              (muestra el código de emparejamiento)
     ├── requirements.txt
     └── test_client.py              (simula el teléfono)
 ```
@@ -163,7 +170,8 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 - [x] Inicio automático del agente con Windows. *(2026-10-21)*
 - [x] Token compartido para que no cualquiera en la red pueda apretar teclas. *(2026-10-21)*
 - [ ] Escaneo del QR como alternativa a mDNS.
-- [ ] Ícono, nombre y README de uso.
+- [x] README de uso para cualquier persona. *(2026-10-21)*
+- [ ] Ícono propio (hoy es un placeholder dibujado a mano).
 
 ---
 
@@ -208,7 +216,7 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 | 2026-10-21 | 5 | **Descubrimiento mDNS desde el teléfono** | ✅ OK | Sin IP guardada: encontrado en **60 ms**, conectado 120 ms después de tocar Iniciar, sin tipear nada |
 | 2026-10-21 | 5 | Comandos con el agente en modo automático | ✅ OK | `next` y `prev` llegaron al agente silencioso |
 | 2026-10-21 | 5 | Layout de los 4 botones | ✅ OK | Bug corregido: "Limpiar" quedaba fuera de pantalla. Ahora usa `FlowRow` y envuelve |
-|  | 5 | Arranque tras reiniciar sesión de Windows | ⏳ pendiente | Requiere cerrar y abrir sesión |
+| 2026-10-21 | 5 | **Arranque automático tras reiniciar** | ✅ OK | Post-reinicio: agente escuchando en 8765 y conexión ESTABLISHED con el teléfono sin intervención |
 | 2026-10-21 | 5 | Autenticación del agente | ✅ OK | Código correcto autentica; incorrecto y sin autenticar cierran con `4401` sin tocar el teclado |
 | 2026-10-21 | 5 | Emparejamiento desde el teléfono | ✅ OK | Código rechazado → la app deja de reintentar y lo dice; código correcto → conectado. Persiste entre reinicios |
 | 2026-10-21 | 5 | Mapeo configurable | ✅ OK | Cambiado "click simple" a Pantalla negra: el agente recibió `black`. "Restablecer" vuelve a los valores de fábrica |
@@ -218,5 +226,6 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 | 2026-10-20 | 3 | Latencia ping/pong | ✅ OK | **14 ms** sobre WiFi, muy por debajo del objetivo de 150 ms |
 | 2026-10-20 | 3 | Reconexión automática | ✅ OK | Backoff observado: 2 s, 4 s... mientras el cleartext estaba bloqueado |
 | 2026-10-21 | 3 | **Presentación real (Canva)** | ✅ OK | 23 comandos (21 next, 2 prev) en ~2 min, sin desconexiones ni duplicados. "Funciona excelente" |
+| 2026-10-21 | 5 | Uso real tras el reinicio | ✅ OK | "Funcionó excelente". Repo publicado en GitHub |
 |  | 3 | Gestos ↑/↓ contra una presentación real | ⏳ pendiente | No se probaron: no llegó ningún `black` ni `exit` |
 |  | 1 | Prezi / PowerPoint específicamente | ⏳ pendiente | El mecanismo ya quedó probado con Canva; son las mismas teclas |
