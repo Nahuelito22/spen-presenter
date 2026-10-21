@@ -171,7 +171,8 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 - [x] Token compartido para que no cualquiera en la red pueda apretar teclas. *(2026-10-21)*
 - [ ] Escaneo del QR como alternativa a mDNS.
 - [x] README de uso para cualquier persona. *(2026-10-21)*
-- [ ] Ícono propio (hoy es un placeholder dibujado a mano).
+- [x] Ícono propio de la app y de la notificación. *(2026-10-21)*
+- [x] Empaquetado del agente como `.exe` con PyInstaller. *(2026-10-21)*
 
 ---
 
@@ -220,6 +221,9 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 | 2026-10-21 | 5 | Autenticación del agente | ✅ OK | Código correcto autentica; incorrecto y sin autenticar cierran con `4401` sin tocar el teclado |
 | 2026-10-21 | 5 | Emparejamiento desde el teléfono | ✅ OK | Código rechazado → la app deja de reintentar y lo dice; código correcto → conectado. Persiste entre reinicios |
 | 2026-10-21 | 5 | Mapeo configurable | ✅ OK | Cambiado "click simple" a Pantalla negra: el agente recibió `black`. "Restablecer" vuelve a los valores de fábrica |
+| 2026-10-21 | 5 | Ejecutable independiente | ✅ OK | 11 MB con PyInstaller. Publica mDNS, muestra el código y autentica igual que el script |
+| 2026-10-21 | 5 | Arranque automático con el `.exe` | ✅ OK | El acceso directo apunta al ejecutable, ventana minimizada. Bug corregido: el script quedó imprimiendo variables vacías tras un refactor |
+|  | 5 | Ícono nuevo en el teléfono | ⏳ pendiente | Compila; falta verlo instalado |
 | 2026-10-20 | 3 | Regla de firewall para el puerto 8765 | ✅ OK | Creada como "S Pen Presenter". La red de casa figura como **Pública**, así que la regla quedó con perfil `Any` |
 | 2026-10-20 | 3 | WebSocket teléfono → PC | ✅ OK | 192.168.1.181 → 192.168.1.171. Bug corregido: Android bloquea cleartext, hizo falta `network_security_config` |
 | 2026-10-20 | 3 | Comandos de punta a punta | ✅ OK | `next`, `prev`, `next` simulados llegaron al agente y movieron el foco |

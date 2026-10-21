@@ -32,6 +32,21 @@ Opciones: `--host`, `--port`.
 .\.venv\Scripts\python.exe test_client.py --host 192.168.1.171 next
 ```
 
+## Ejecutable independiente (sin Python)
+
+Para usarlo en una PC que no tiene Python, o para pasárselo a alguien:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build_exe.ps1
+```
+
+Genera `dist\spen-presenter-agent.exe` (~11 MB), que trae Python y todas las
+dependencias adentro. Se ejecuta con doble clic: abre una consola con el QR,
+la IP y el código de emparejamiento.
+
+El `.exe` no se versiona en el repo — cada uno lo compila, o se publica como
+release de GitHub.
+
 ## Arranque automático con Windows
 
 ```powershell
@@ -40,8 +55,8 @@ powershell -ExecutionPolicy Bypass -File .\install_autostart.ps1
 ```
 
 Crea un acceso directo en la carpeta de Inicio del usuario — **no hace falta
-ser administrador**. A partir del próximo inicio de sesión el agente arranca
-solo, sin ventana de consola, y escribe su log en:
+ser administrador**. Usa el `.exe` si existe (ventana minimizada); si no, el
+venv con `pythonw.exe`, que no abre consola y escribe su log en:
 
 ```
 %LOCALAPPDATA%\SPenPresenter\agent.log
