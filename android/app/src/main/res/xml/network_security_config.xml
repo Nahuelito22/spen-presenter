@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  El agente de la PC habla ws:// plano, sin TLS, y Android bloquea el texto
+  plano por defecto desde API 28.
+
+  No se puede acotar por rango de IPs (la config solo entiende dominios) y la
+  IP del agente cambia de red en red, asi que habilitamos cleartext en general.
+
+  Es aceptable en este caso: el trafico no sale de la LAN y lo unico que viaja
+  son las palabras "next" y "prev". Lo que SI hay que tener presente es que
+  cualquiera en la misma red puede hablarle al agente y apretar teclas en la
+  PC; mitigarlo con un token compartido queda para la Fase 5.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

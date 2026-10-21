@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Un S Pen en diagonal, dibujado a mano para no depender de assets -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,30 L74,40 L48,66 L36,70 L40,58 Z" />
+    <path
+        android:fillColor="#6FFFE9"
+        android:pathData="M66,28 L72,22 L82,32 L76,38 Z" />
+</vector>

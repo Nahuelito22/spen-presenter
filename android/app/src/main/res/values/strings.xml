@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">S Pen Presenter</string>
+    <string name="channel_name">Control remoto activo</string>
+    <string name="channel_description">Mantiene el S Pen escuchando mientras presentas</string>
+</resources>
