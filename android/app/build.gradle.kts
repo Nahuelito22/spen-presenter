@@ -13,7 +13,7 @@ android {
         minSdk = 28          // BluetoothHidDevice (Fase 4)
         targetSdk = 36       // Android 16, el del S22 Ultra de prueba
         versionCode = 1
-        versionName = "0.1-fase2"
+        versionName = "1.0"
     }
 
     buildTypes {
