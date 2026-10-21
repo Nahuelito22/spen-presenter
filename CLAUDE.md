@@ -1,7 +1,37 @@
 # S Pen Presenter — Plan de trabajo para Claude Code
 
 > Objetivo: usar el botón del **S Pen del Galaxy S22 Ultra** como control remoto para pasar diapositivas en la PC (Prezi, PowerPoint, Google Slides, PDF).
-> Este archivo es la guía del proyecto. Claude Code debe leerlo al empezar cada sesión y trabajar **fase por fase**, deteniéndose al final de cada una para que Nahuel pruebe en el dispositivo real.
+> Este archivo es la guía del proyecto y su registro de decisiones. Claude Code debe leerlo al empezar cada sesión.
+> El desarrollo por fases terminó (ver sección 0); las reglas de trabajo de la sección 2 siguen vigentes.
+
+---
+
+## 0. Estado: desarrollo cerrado (2026-10-21)
+
+**Las cinco fases están completas y verificadas.** El objetivo original —pasar
+diapositivas en la PC con el S Pen— funciona, y dos cosas salieron mejor de lo
+previsto: el `VolumeProvider` dio 6 gestos en lugar de 4, y el Bluetooth HID
+resultó viable (la Fase 4 estaba marcada como opcional).
+
+Publicado en https://github.com/Nahuelito22/spen-presenter — release `v1.1`.
+
+### Pruebas de campo pendientes
+
+No son mejoras: son criterios de salida del plan original que todavía no se
+verificaron fuera de esta máquina.
+
+| Prueba | Por qué importa |
+|---|---|
+| **Bluetooth en una segunda PC** | El modo HID solo se probó contra la PC de Nahuel, que ya estaba emparejada. Que funcione en una máquina virgen es una suposición razonable (el descriptor es un teclado estándar), no un hecho |
+| **Servicio durante 15 min o más** | Si One UI mata el servicio a mitad de una charla, uno se entera en el peor momento |
+
+### Mejoras opcionales, si alguna vez hacen falta
+
+- GitHub Actions que compile el APK en cada push.
+- Reevaluar el transporte cuando se cae (hoy la elección del modo automático
+  se hace una sola vez al arrancar, a propósito).
+- Escaneo de QR como alternativa a mDNS.
+- Empaquetar el agente para macOS y Linux.
 
 ---
 
