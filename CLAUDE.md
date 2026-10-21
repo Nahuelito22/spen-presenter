@@ -156,9 +156,10 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 ### Fase 4 — Modo Bluetooth HID (opcional, si la Fase 0 lo validó)
 **Objetivo:** que funcione sin instalar nada en la PC.
 
-- [ ] `HidTransport` con `BluetoothHidDevice` y un descriptor de teclado.
-- [ ] Flujo de emparejamiento desde la app.
-- [ ] Selector de modo en la UI: LAN / Bluetooth.
+- [x] `HidTransport` con `BluetoothHidDevice` y un descriptor de teclado. *(2026-10-21)*
+- [x] Selector de modo en la UI: WiFi / Bluetooth. *(2026-10-21)*
+- [ ] **Confirmar que Samsung lo permite**: si `registerApp` falla, la app lo
+      dice en pantalla y el modo queda descartado.
 
 **Prueba:** emparejar con la PC, abrir Prezi y pasar diapositivas sin el agente corriendo. Probar también en una segunda PC (por ejemplo, la de un aula o evento).
 
@@ -224,6 +225,8 @@ Mapeo inicial sugerido (ajustable en `Mapping.kt`):
 | 2026-10-21 | 5 | Ejecutable independiente | ✅ OK | 11 MB con PyInstaller. Publica mDNS, muestra el código y autentica igual que el script |
 | 2026-10-21 | 5 | Arranque automático con el `.exe` | ✅ OK | El acceso directo apunta al ejecutable, ventana minimizada. Bug corregido: el script quedó imprimiendo variables vacías tras un refactor |
 |  | 5 | Ícono nuevo en el teléfono | ⏳ pendiente | Compila; falta verlo instalado |
+|  | 4 | `BluetoothHidDevice.registerApp` en el S22 | ⏳ pendiente | **La prueba que decide la fase.** Compila; falta correrlo en el teléfono |
+|  | 4 | La PC ve al S22 como teclado | ⏳ pendiente | Depende de la anterior |
 | 2026-10-20 | 3 | Regla de firewall para el puerto 8765 | ✅ OK | Creada como "S Pen Presenter". La red de casa figura como **Pública**, así que la regla quedó con perfil `Any` |
 | 2026-10-20 | 3 | WebSocket teléfono → PC | ✅ OK | 192.168.1.181 → 192.168.1.171. Bug corregido: Android bloquea cleartext, hizo falta `network_security_config` |
 | 2026-10-20 | 3 | Comandos de punta a punta | ✅ OK | `next`, `prev`, `next` simulados llegaron al agente y movieron el foco |

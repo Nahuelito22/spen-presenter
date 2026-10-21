@@ -18,6 +18,7 @@ import androidx.core.app.NotificationCompat
 import androidx.media.VolumeProviderCompat
 import androidx.media.session.MediaButtonReceiver
 import com.nahuel.spenpresenter.transport.ConnectionState
+import com.nahuel.spenpresenter.transport.HidTransport
 import com.nahuel.spenpresenter.transport.Transport
 import com.nahuel.spenpresenter.transport.WebSocketTransport
 import kotlinx.coroutines.CoroutineScope
@@ -156,6 +157,11 @@ class PresenterService : Service() {
     private fun openTransport() {
         transport?.disconnect()
 
+        if (Settings.mode.value == TransportMode.BLUETOOTH) {
+            openTransport(HidTransport(this))
+            return
+        }
+
         val url = Settings.url()
         if (url == null) {
             // Sin IP guardada probamos mDNS antes de darnos por vencidos.
@@ -163,7 +169,10 @@ class PresenterService : Service() {
             return
         }
 
-        val next = WebSocketTransport(url, Settings.token.value, scope)
+        openTransport(WebSocketTransport(url, Settings.token.value, scope))
+    }
+
+    private fun openTransport(next: Transport) {
         transport = next
         scope.launch {
             next.state.collect { state ->
@@ -250,7 +259,12 @@ class PresenterService : Service() {
 
     private fun connectionText(): String = when (val state = EventLog.connection.value) {
         is ConnectionState.Idle -> "Escuchando el S Pen - PC sin configurar"
-        is ConnectionState.Searching -> "Buscando la PC en la red..."
+        is ConnectionState.Searching ->
+            if (Settings.mode.value == TransportMode.BLUETOOTH) {
+                "Esperando que la PC se conecte por Bluetooth"
+            } else {
+                "Buscando la PC en la red..."
+            }
         is ConnectionState.Connecting -> "Conectando con la PC (intento ${state.attempt})"
         is ConnectionState.Connected ->
             state.latencyMs?.let { "Conectado - ${it} ms" } ?: "Conectado a la PC"

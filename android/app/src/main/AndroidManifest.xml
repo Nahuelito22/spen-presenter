@@ -5,8 +5,17 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- Fase 3: WebSocket al agente de la PC -->
+    <!-- WebSocket al agente de la PC -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Modo Bluetooth HID: el telefono se presenta como teclado -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
 
     <application
         android:allowBackup="true"

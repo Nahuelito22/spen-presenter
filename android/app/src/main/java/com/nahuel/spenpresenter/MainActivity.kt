@@ -1,6 +1,7 @@
 package com.nahuel.spenpresenter
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -25,7 +26,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
@@ -54,6 +57,9 @@ class MainActivity : ComponentActivity() {
     private val requestNotifications =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
+    private val requestBluetooth =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // La UI es siempre clara, asi que forzamos iconos oscuros en la barra de
@@ -63,6 +69,7 @@ class MainActivity : ComponentActivity() {
         )
         Settings.load(this)
         askForNotifications()
+        askForBluetooth()
         setContent {
             MaterialTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
@@ -70,6 +77,21 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * El modo Bluetooth necesita BLUETOOTH_CONNECT desde Android 12. Lo
+     * pedimos solo si Nahuel ya eligio ese modo, para no molestar a quien use
+     * la app por WiFi.
+     */
+    private fun askForBluetooth() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        if (Settings.mode.value != TransportMode.BLUETOOTH) return
+        val granted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.BLUETOOTH_CONNECT,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) requestBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
     }
 
     /** Sin esto, en Android 13+ el foreground service corre sin notificacion visible. */
@@ -93,6 +115,7 @@ private fun PresenterScreen(modifier: Modifier = Modifier) {
     val savedHost by Settings.host.collectAsStateWithLifecycle()
     val savedToken by Settings.token.collectAsStateWithLifecycle()
     val mapping by Settings.mapping.collectAsStateWithLifecycle()
+    val mode by Settings.mode.collectAsStateWithLifecycle()
 
     var host by remember(savedHost) { mutableStateOf(savedHost) }
     var token by remember(savedToken) { mutableStateOf(savedToken) }
@@ -106,22 +129,46 @@ private fun PresenterScreen(modifier: Modifier = Modifier) {
     ) {
         Text("S Pen Presenter", style = MaterialTheme.typography.headlineSmall)
 
-        OutlinedTextField(
-            value = host,
-            onValueChange = { host = it },
-            label = { Text("IP del agente (o usa Buscar PC)") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-            modifier = Modifier.fillMaxWidth(),
-        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TransportMode.entries.forEach { option ->
+                FilterChip(
+                    selected = mode == option,
+                    onClick = {
+                        Settings.setMode(context, option)
+                        if (running) PresenterService.reconnect(context)
+                    },
+                    label = { Text(option.label) },
+                )
+            }
+        }
 
-        OutlinedTextField(
-            value = token,
-            onValueChange = { token = it },
-            label = { Text("Codigo de emparejamiento") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (mode == TransportMode.BLUETOOTH) {
+            Text(
+                "El telefono aparece como un teclado en la pantalla de " +
+                    "Bluetooth de la PC. Emparejalo desde ahi; no hace falta " +
+                    "el agente.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+
+        if (mode == TransportMode.LAN) {
+            OutlinedTextField(
+                value = host,
+                onValueChange = { host = it },
+                label = { Text("IP del agente (o usa Buscar PC)") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            OutlinedTextField(
+                value = token,
+                onValueChange = { token = it },
+                label = { Text("Codigo de emparejamiento") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
 
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -147,9 +194,11 @@ private fun PresenterScreen(modifier: Modifier = Modifier) {
                     Settings.setToken(context, token)
                     PresenterService.reconnect(context)
                 },
-                enabled = host != savedHost ||
-                    token != savedToken ||
-                    connection is ConnectionState.Failed,
+                // En Bluetooth no hay nada que reconectar a mano.
+                enabled = mode == TransportMode.LAN &&
+                    (host != savedHost ||
+                        token != savedToken ||
+                        connection is ConnectionState.Failed),
             ) {
                 Text("Reconectar")
             }
@@ -158,7 +207,8 @@ private fun PresenterScreen(modifier: Modifier = Modifier) {
                     Settings.setToken(context, token)
                     PresenterService.discover(context)
                 },
-                enabled = connection !is ConnectionState.Searching,
+                enabled = mode == TransportMode.LAN &&
+                    connection !is ConnectionState.Searching,
             ) {
                 Text("Buscar PC")
             }
